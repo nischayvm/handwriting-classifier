@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 import numpy as np
-import cv2
 import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
