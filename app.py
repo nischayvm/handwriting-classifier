@@ -217,7 +217,7 @@ def model_info():
     })
 
 if __name__ == '__main__':
-    print("Starting Handwriting Classifier Web App...")
+    print("Starting Handwriting Classifier Web App v2.0...")
     print("Training models...")
     
     try:
