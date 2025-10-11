@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Digit Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-brain"></i> Handwriting Digit Classifier</h1>
+            <p>Upload an image of a handwritten digit (0-9) and get predictions from multiple ML models</p>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Drop your image here</h3>
+                        <p>or <span class="upload-link">click to browse</span></p>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                    </div>
+                </div>
+                
+                <div class="image-preview" id="imagePreview" style="display: none;">
+                    <img id="previewImg" alt="Preview">
+                    <button class="remove-btn" id="removeBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="predict-btn" id="predictBtn" disabled>
+                    <i class="fas fa-magic"></i> Predict Digit
+                </button>
+                <button class="clear-btn" id="clearBtn">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Prediction Results</h2>
+                
+                <div class="processed-image">
+                    <h3>Processed Image</h3>
+                    <img id="processedImg" alt="Processed Image">
+                </div>
+
+                <div class="predictions">
+                    <h3>Model Predictions</h3>
+                    <div class="prediction-grid">
+                        <div class="prediction-card" id="lrCard">
+                            <div class="model-name">
+                                <i class="fas fa-chart-line"></i>
+                                Logistic Regression
+                            </div>
+                            <div class="prediction-value" id="lrPred">-</div>
+                            <div class="confidence" id="lrConf">Accuracy: 92.64%</div>
+                        </div>
+
+                        <div class="prediction-card" id="knnCard">
+                            <div class="model-name">
+                                <i class="fas fa-sitemap"></i>
+                                K-Nearest Neighbors
+                            </div>
+                            <div class="prediction-value" id="knnPred">-</div>
+                            <div class="confidence" id="knnConf">Accuracy: ~97%</div>
+                        </div>
+
+                        <div class="prediction-card" id="svmCard">
+                            <div class="model-name">
+                                <i class="fas fa-vector-square"></i>
+                                Support Vector Machine
+                            </div>
+                            <div class="prediction-value" id="svmPred">-</div>
+                            <div class="confidence" id="svmConf">Accuracy: ~98%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="consensus" id="consensus" style="display: none;">
+                    <h3><i class="fas fa-handshake"></i> Consensus Prediction</h3>
+                    <div class="consensus-value" id="consensusValue">-</div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing your image...</p>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Powered by Machine Learning • Built with Flask & TensorFlow</p>
+        </footer>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeBtn = document.getElementById('removeBtn');
+        const predictBtn = document.getElementById('predictBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+
+        let currentImage = null;
+
+        // Upload area click handler
+        uploadArea.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        // File input change handler
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        // Remove image handler
+        removeBtn.addEventListener('click', () => {
+            clearImage();
+        });
+
+        // Clear button handler
+        clearBtn.addEventListener('click', () => {
+            clearImage();
+        });
+
+        // Predict button handler
+        predictBtn.addEventListener('click', () => {
+            if (currentImage) {
+                predictDigit();
+            }
+        });
+
+        function handleImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImage = e.target.result;
+                previewImg.src = currentImage;
+                uploadArea.style.display = 'none';
+                imagePreview.style.display = 'block';
+                predictBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            currentImage = null;
+            imageInput.value = '';
+            uploadArea.style.display = 'block';
+            imagePreview.style.display = 'none';
+            resultsSection.style.display = 'none';
+            predictBtn.disabled = true;
+        }
+
+        async function predictDigit() {
+            if (!currentImage) return;
+
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+            predictBtn.disabled = true;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image: currentImage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            const { predictions, processed_image } = data;
+
+            // Display processed image
+            document.getElementById('processedImg').src = 'data:image/png;base64,' + processed_image;
+
+            // Display predictions
+            document.getElementById('lrPred').textContent = predictions.logistic_regression !== null ? predictions.logistic_regression : 'Error';
+            document.getElementById('knnPred').textContent = predictions.knn !== null ? predictions.knn : 'Error';
+            document.getElementById('svmPred').textContent = predictions.svm !== null ? predictions.svm : 'Error';
+
+            // Calculate consensus
+            const values = Object.values(predictions).filter(v => v !== null);
+            if (values.length > 0) {
+                const consensus = getConsensus(values);
+                document.getElementById('consensusValue').textContent = consensus;
+                document.getElementById('consensus').style.display = 'block';
+            }
+
+            // Highlight best prediction
+            highlightBestPrediction(predictions);
+
+            resultsSection.style.display = 'block';
+        }
+
+        function getConsensus(values) {
+            const counts = {};
+            values.forEach(v => {
+                counts[v] = (counts[v] || 0) + 1;
+            });
+            
+            let maxCount = 0;
+            let consensus = values[0];
+            
+            for (const [value, count] of Object.entries(counts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    consensus = value;
+                }
+            }
+            
+            return consensus;
+        }
+
+        function highlightBestPrediction(predictions) {
+            // Reset all cards
+            document.querySelectorAll('.prediction-card').forEach(card => {
+                card.classList.remove('best-prediction');
+            });
+
+            // Find the most confident prediction (for now, just highlight the first valid one)
+            const validPredictions = Object.entries(predictions).filter(([_, value]) => value !== null);
+            if (validPredictions.length > 0) {
+                const modelName = validPredictions[0][0];
+                const cardId = modelName === 'logistic_regression' ? 'lrCard' : 
+                              modelName === 'knn' ? 'knnCard' : 'svmCard';
+                document.getElementById(cardId).classList.add('best-prediction');
+            }
+        }
+    </script>
+</body>
+</html>
+
