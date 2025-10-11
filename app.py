@@ -68,37 +68,46 @@ def train_models():
         x_train_flat = x_train.reshape((x_train.shape[0], -1))
         x_test_flat = x_test.reshape((x_test.shape[0], -1))
         
+        # Use smaller dataset for faster training
+        print("Using smaller dataset for faster training...")
+        x_train_small = x_train[:5000]
+        y_train_small = y_train[:5000]
+        x_test_small = x_test[:1000]
+        y_test_small = y_test[:1000]
+        
+        x_train_flat_small = x_train_small.reshape((x_train_small.shape[0], -1))
+        x_test_flat_small = x_test_small.reshape((x_test_small.shape[0], -1))
+        
         print("Training Logistic Regression...")
         # Logistic Regression
         log_reg = LogisticRegression(
             solver='lbfgs',
-            max_iter=1000,
-            multi_class='multinomial',
+            max_iter=100,
             random_state=42
         )
-        log_reg.fit(x_train_flat, y_train)
+        log_reg.fit(x_train_flat_small, y_train_small)
         models['logistic_regression'] = log_reg
         print("✓ Logistic Regression trained")
         
         print("Training K-Nearest Neighbors...")
         # KNN
         knn = KNeighborsClassifier(n_neighbors=3)
-        knn.fit(x_train_flat, y_train)
+        knn.fit(x_train_flat_small, y_train_small)
         models['knn'] = knn
         print("✓ KNN trained")
         
         print("Training Support Vector Machine...")
-        # SVM (using subset for faster training)
+        # SVM (using even smaller subset)
         svm = SVC(kernel='rbf', gamma='scale', random_state=42)
-        svm.fit(x_train_flat[:10000], y_train[:10000])
+        svm.fit(x_train_flat_small[:2000], y_train_small[:2000])
         models['svm'] = svm
         print("✓ SVM trained")
         
         # Calculate accuracies
         print("Calculating model accuracies...")
-        lr_acc = log_reg.score(x_test_flat, y_test)
-        knn_acc = knn.score(x_test_flat, y_test)
-        svm_acc = svm.score(x_test_flat, y_test)
+        lr_acc = log_reg.score(x_test_flat_small, y_test_small)
+        knn_acc = knn.score(x_test_flat_small, y_test_small)
+        svm_acc = svm.score(x_test_flat_small, y_test_small)
         
         print(f"Model accuracies:")
         print(f"Logistic Regression: {lr_acc:.2%}")
