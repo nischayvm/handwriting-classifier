@@ -27,12 +27,18 @@ def preprocess_image(image_data):
         # Convert to PIL Image
         image = Image.open(BytesIO(base64.b64decode(image_data)))
         
+        # Check image size and resize if too large (iPhone photos are huge!)
+        max_size = 1024  # Limit to 1024px max dimension
+        if image.width > max_size or image.height > max_size:
+            print(f"Resizing large image from {image.width}x{image.height}")
+            image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+        
         # Convert to grayscale
         if image.mode != 'L':
             image = image.convert('L')
         
         # Resize to 28x28
-        image = image.resize((28, 28))
+        image = image.resize((28, 28), Image.Resampling.LANCZOS)
         
         # Convert to numpy array
         img_array = np.array(image)
@@ -174,11 +180,17 @@ def predict():
         if not image_data:
             return jsonify({'error': 'No image provided'}), 400
         
+        # Check image size before processing
+        if len(image_data) > 10 * 1024 * 1024:  # 10MB limit
+            return jsonify({'error': 'Image too large. Please use a smaller image.'}), 400
+        
+        print(f"Processing image of size: {len(image_data)} bytes")
+        
         # Preprocess image
         img_flat, img_inverted = preprocess_image(image_data)
         
         if img_flat is None:
-            return jsonify({'error': 'Failed to preprocess image'}), 400
+            return jsonify({'error': 'Failed to preprocess image. Please try a different image.'}), 400
         
         # Get predictions from all models
         predictions = {}
@@ -193,7 +205,7 @@ def predict():
         # Convert processed image back to base64 for display
         img_display = Image.fromarray(img_inverted.astype(np.uint8))
         buffer = BytesIO()
-        img_display.save(buffer, format='PNG')
+        img_display.save(buffer, format='PNG', optimize=True)
         img_str = base64.b64encode(buffer.getvalue()).decode()
         
         return jsonify({
@@ -203,7 +215,7 @@ def predict():
         
     except Exception as e:
         print(f"Error in prediction: {e}")
-        return jsonify({'error': 'Prediction failed'}), 500
+        return jsonify({'error': 'Prediction failed. Please try a smaller image.'}), 500
 
 @app.route('/model_info')
 def model_info():

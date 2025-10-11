@@ -168,15 +168,66 @@
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentImage = e.target.result;
+            // Check file size (iPhone photos can be huge!)
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                alert('Image too large! Please use a smaller image or compress it first.');
+                return;
+            }
+
+            // Compress large images
+            if (file.size > 2 * 1024 * 1024) { // 2MB
+                console.log('Compressing large image...');
+                compressImage(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentImage = e.target.result;
+                    previewImg.src = currentImage;
+                    uploadArea.style.display = 'none';
+                    imagePreview.style.display = 'block';
+                    predictBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function compressImage(file) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                // Calculate new dimensions (max 1024px)
+                let { width, height } = img;
+                const maxSize = 1024;
+                
+                if (width > maxSize || height > maxSize) {
+                    if (width > height) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    } else {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                
+                currentImage = compressedDataUrl;
                 previewImg.src = currentImage;
                 uploadArea.style.display = 'none';
                 imagePreview.style.display = 'block';
                 predictBtn.disabled = false;
+                
+                console.log(`Image compressed from ${file.size} bytes to ${compressedDataUrl.length} characters`);
             };
-            reader.readAsDataURL(file);
+            
+            img.src = URL.createObjectURL(file);
         }
 
         function clearImage() {
