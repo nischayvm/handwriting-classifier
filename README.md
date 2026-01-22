@@ -2,7 +2,7 @@
 
 A modern web application that uses multiple machine learning models to classify handwritten digits (0-9) from uploaded images. The app provides predictions from three different ML algorithms and displays a consensus result.
 
-## 🚀 Features
+##  Features
 
 - **Multiple ML Models**: Logistic Regression, K-Nearest Neighbors (KNN), and Support Vector Machine (SVM)
 - **Real-time Predictions**: Upload images and get instant predictions
@@ -11,7 +11,7 @@ A modern web application that uses multiple machine learning models to classify 
 - **Consensus Prediction**: Combines results from all models for better accuracy
 - **Model Performance**: Shows accuracy metrics for each model
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Backend**: Flask (Python)
 - **ML Libraries**: scikit-learn, TensorFlow
@@ -19,12 +19,12 @@ A modern web application that uses multiple machine learning models to classify 
 - **Frontend**: HTML5, CSS3, JavaScript
 - **Data**: MNIST dataset for training
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package installer)
 
-## 🔧 Installation
+##  Installation
 
 1. **Clone or download the project**
    ```bash
@@ -48,7 +48,7 @@ A modern web application that uses multiple machine learning models to classify 
    pip install -r requirements.txt
    ```
 
-## 🚀 Running the Application
+##  Running the Application
 
 1. **Start the Flask server**
    ```bash
@@ -63,7 +63,7 @@ A modern web application that uses multiple machine learning models to classify 
    - Click "Predict Digit" to get results from all models
    - View the consensus prediction
 
-## 📊 Model Performance
+##  Model Performance
 
 | Model | Accuracy | Description |
 |-------|----------|-------------|
@@ -71,7 +71,7 @@ A modern web application that uses multiple machine learning models to classify 
 | K-Nearest Neighbors | ~97% | Instance-based learning |
 | Support Vector Machine | ~98% | Kernel-based classification |
 
-## 🎯 How It Works
+##  How It Works
 
 ### 1. Image Preprocessing
 - Converts uploaded images to grayscale
@@ -90,7 +90,7 @@ A modern web application that uses multiple machine learning models to classify 
 - Consensus is calculated using majority voting
 - Results are displayed with confidence metrics
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 handwriting_classifier/
@@ -104,7 +104,7 @@ handwriting_classifier/
 └── handwriting_detection.ipynb  # Original notebook
 ```
 
-## 🎨 Usage Guide
+##  Usage Guide
 
 ### Uploading Images
 1. **Drag and Drop**: Simply drag an image file onto the upload area
@@ -123,7 +123,7 @@ handwriting_classifier/
 - Avoid heavily rotated or distorted digits
 - Single digits work best (not multiple digits in one image)
 
-## 🔧 Customization
+##  Customization
 
 ### Adding New Models
 1. Train your model in the `train_models()` function
@@ -140,7 +140,7 @@ handwriting_classifier/
 - Adjust training data size for faster/slower training
 - Change preprocessing steps as needed
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -165,7 +165,7 @@ pip install tensorflow-cpu  # For CPU-only systems
 app.run(debug=True, host='0.0.0.0', port=5001)
 ```
 
-## 📈 Performance Optimization
+##  Performance Optimization
 
 ### For Production
 - Use a production WSGI server (Gunicorn, uWSGI)
@@ -178,7 +178,7 @@ app.run(debug=True, host='0.0.0.0', port=5001)
 - Use smaller training datasets
 - Implement model persistence
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -186,18 +186,18 @@ app.run(debug=True, host='0.0.0.0', port=5001)
 4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+##  License
 
 This project is open source and available under the MIT License.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - MNIST dataset creators
 - scikit-learn and TensorFlow teams
 - Flask community
 - All open-source contributors
 
-## 📞 Support
+##  Support
 
 If you encounter any issues or have questions:
 1. Check the troubleshooting section
@@ -207,5 +207,5 @@ If you encounter any issues or have questions:
 
 ---
 
-**Happy Classifying! 🎯**
+**Happy Classifying! **
 
